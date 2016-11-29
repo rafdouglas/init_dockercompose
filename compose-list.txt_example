@@ -1,0 +1,4 @@
+#place list of directories containing valid docker-compose.yml files 
+#/opt/docker-compose/nginx_redis
+#/opt/docker-compose/your_dev_env_composer
+#/home/yourname/dc/dc_test

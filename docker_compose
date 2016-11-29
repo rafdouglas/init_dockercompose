@@ -1,0 +1,110 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:		dockercompose
+# Required-Start:	$docker
+# Required-Stop:	$docker
+# Default-Start:	2 3 4 5
+# Default-Stop:		0 1 6
+# Short-Description:	Docker Services
+### END INIT INFO
+
+set -e
+
+COMPOSE_LIST='/etc/docker-compose/compose-list.txt'
+UPOPTS="-d --no-recreate --no-build --no-deps"
+
+#PROJECT_NAME=boot
+#OPTS="-f $YAMLFILE -p $PROJECT_NAME"
+
+start_stop_status(){
+	compose_dir="$1"
+	action="$2"
+	
+	if [ ! -z "$action" ]&&[ -d "$compose_dir" ]; then
+
+		cd "$compose_dir"
+
+		#YAMLFILE="$compose_dir"'docker-compose.yml'
+		
+		if [ "$action" == 'start' ]; then
+		
+			log_daemon_msg "Starting docker-compose in $compose_dir"
+			docker-compose up $UPOPTS
+			
+		elif [ "$action" == 'stop' ]; then
+		
+			log_daemon_msg "Stopping docker-compose in $compose_dir"
+			docker-compose stop 
+			
+		elif [ "$action" == 'status' ]; then
+		
+			log_daemon_msg "Status of docker-compose in $compose_dir"
+			docker-compose ps 
+			
+		else
+
+			log_daemon_msg "Something wrong with options:$compose_dir, action: $action."
+
+		fi
+	
+	fi
+}
+
+
+loop_through_composes(){
+	action="$1"
+	if [ ! -z "$action" ] && [ -e "$COMPOSE_LIST" ]; then
+		
+		echo -e "\n"
+
+		cat "$COMPOSE_LIST" |grep -v '^#'| grep -v '^[[:space:]]*$' | \
+		while read comp_directory
+		do
+			
+			start_stop_status "$comp_directory" "$action"
+			echo -e "\n\n"
+			
+		done
+		
+	else
+		log_daemon_msg "$COMPOSE_LIST not found or action $action not valid"
+	fi
+}
+
+
+. /lib/lsb/init-functions
+
+case "$1" in
+    start)
+        log_daemon_msg "Starting Docker Compose" "dockercompose" || true
+        loop_through_composes start
+        ;;
+
+    stop)
+        log_daemon_msg "Stopping Docker Compose" "dockercompose" || true
+        loop_through_composes stop
+        ;;
+
+    reload)
+        log_daemon_msg "Reloading Docker Compose" "dockercompose" || true
+        loop_through_composes start
+        ;;
+
+    restart)
+        loop_through_composes stop
+        loop_through_composes start
+        ;;
+        
+    status)
+        log_daemon_msg "Checking status of Docker Compose" "dockercompose" || true
+        loop_through_composes status
+        ;;
+
+    *)
+        log_action_msg "Usage: /etc/init.d/docker_compose {start|stop|restart|reload}" || true
+        exit 1
+        ;;
+esac
+
+exit 0
