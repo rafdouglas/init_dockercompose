@@ -27,22 +27,25 @@ start_stop_status(){
 
 		#YAMLFILE="$compose_dir"'docker-compose.yml'
 		
-		if [ "$action" == 'start' ]; then
+		if [ "$action" = "start" ]; then
 		
 			log_daemon_msg "Starting docker-compose in $compose_dir"
 			docker-compose up $UPOPTS
+		fi
 			
-		elif [ "$action" == 'stop' ]; then
+		if [ "$action" = "stop" ]; then
 		
 			log_daemon_msg "Stopping docker-compose in $compose_dir"
 			docker-compose stop 
-			
-		elif [ "$action" == 'status' ]; then
+		fi
+		
+		if [ "$action" = "status" ]; then
 		
 			log_daemon_msg "Status of docker-compose in $compose_dir"
 			docker-compose ps 
+		fi
 			
-		else
+		if [ "$action" != "start" -a "$action" != "stop" -a "$action" != "status" ]; then
 
 			log_daemon_msg "Something wrong with options:$compose_dir, action: $action."
 
