@@ -1,17 +1,32 @@
 # init_dockercompose
-/etc/init.d/docker_compose start/stop with multiple composes
 
-based on the work of samalba:
-gist.github.com/samalba/8bc1f848b4fa2db6f12e
+## An init.d style script for managing multiple docker compose instances
 
-Usage:
-git clone rafdouglas/init_dockercompose init_dockercompose
+*Based on the work of samalba:* http://gist.github.com/samalba/8bc1f848b4fa2db6f12e
 
-cd init_dockercompose
-sudo cp docker_compose /etc/init.d
+## Usage:
 
-update-rc.d docker_compose
+	# clone the repo to your server
+    git clone https://github.com/rafdouglas/init_dockercompose.git init_dockercompose
+
+	# show what you just cloned
+    ls -la  init_dockercompose
+    
+    # copy the init script to /etc/init.d
+    sudo cp init_dockercompose/docker_compose /etc/init.d
+    
+    # create/update the links in /etc/rc[0-5].d
+    update-rc.d docker_compose defaults
+
+	# edit the list of compose instances and copy it into the right directory:
+    cp init_dockercompose/compose-list.txt_example init_dockercompose/compose-list.txt
+    nano init_dockercompose/compose-list.txt
+    sudo mkdir -p /etc/docker-compose/
+    sudo cp init_dockercompose/compose-list.txt /etc/docker-compose/
 
 
-invoking this script manually:
-/etc/init.d/docker_compose start|stop|reload|restart
+## Invoking this script manually:
+
+This will do a clean start/stop/reload/query status of your docker compose instances:
+
+    /etc/init.d/docker_compose start|stop|reload|restart|status
